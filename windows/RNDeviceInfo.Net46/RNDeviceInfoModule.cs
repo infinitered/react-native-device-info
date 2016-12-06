@@ -123,5 +123,37 @@ namespace RNDeviceInfo
                 return constants;
             }
         }
+
+        public List<UsbDeviceInfo> GetDevices()
+        {
+            var devices = new List<UsbDeviceInfo>();
+            ManagementClass management = new ManagementClass("Win32_USBControllerDevice");
+            foreach (ManagementBaseObject device in management.GetInstances())
+            {
+                var dependent = (ManagementBaseObject)device.GetPropertyValue("Dependent");
+                devices.Add(new UsbDeviceInfo(
+                    (string)dependent["DeviceID"],
+                    (string)dependent["PNPDeviceID"],
+                    (string)dependent["Description"],
+                    (string)dependent["Name"]
+                    ));
+            }
+            return devices;
+        }
+    }
+
+    public class UsbDeviceInfo
+    {
+        public UsbDeviceInfo(string deviceID, string pnpDeviceID, string description, string name)
+        {
+            this.DeviceId = deviceID;
+            this.PnpDeviceId = pnpDeviceID;
+            this.Description = description;
+            this.Name = name;
+        }
+        public string DeviceId { get; private set; }
+        public string PnpDeviceId { get; private set; }
+        public string Description { get; private set; }
+        public string Name { get; private set; }
     }
 }
